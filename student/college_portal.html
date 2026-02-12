@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Portal - Student Credential System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #1e3c72;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        button {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .key-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+            border: 1px solid #e0e0e0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .next-step {
+            background: #28a745;
+            margin-top: 20px;
+        }
+
+        .next-step:hover {
+            background: #218838;
+        }
+
+        .step-indicator {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #1e3c72;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 College Portal</h1>
+            <p class="subtitle">Student Credential Issuance System</p>
+        </div>
+
+        <div class="card">
+            <h2>Welcome to the College Portal</h2>
+            <div class="info-box">
+                <p><strong>🏛️ College's Role:</strong></p>
+                <p>• Verify student identity using admission records</p>
+                <p>• Bind student's public key to their identity</p>
+                <p>• Issue digitally signed credentials</p>
+                <p><strong>⚠️ Important:</strong> The college does NOT see scholarship applications!</p>
+            </div>
+
+            <!-- Step 1: Generate Keys -->
+            <div class="section">
+                <h3><span class="step-indicator">1</span>Generate Your Cryptographic Keys</h3>
+                <p style="margin: 15px 0; color: #666;">First, generate your private and public keys. Your private key
+                    stays in your browser.</p>
+                <button id="generateKeysBtn">Generate Keys</button>
+                <div id="keysDisplay" class="hidden">
+                    <div class="status success">
+                        ✓ Keys generated successfully!
+                    </div>
+                    <label>Your Public Key:</label>
+                    <div class="key-display" id="publicKeyDisplay"></div>
+                    <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                        <strong>🔒 Security Note:</strong> Your private key is stored securely in your browser and never
+                        transmitted.
+                    </p>
+                </div>
+            </div>
+
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+
+            <!-- Step 2: Request Credential -->
+            <div class="section">
+                <h3><span class="step-indicator">2</span>Request Student Credential</h3>
+                <p style="margin: 15px 0; color: #666;">Enter your student information to get a verified credential from
+                    the college.</p>
+
+                <div class="form-group">
+                    <label for="studentId">Student ID:</label>
+                    <input type="text" id="studentId" placeholder="e.g., STU001">
+                </div>
+
+                <div class="form-group">
+                    <label for="studentName">Full Name (as per college records):</label>
+                    <input type="text" id="studentName" placeholder="e.g., Alice Johnson">
+                </div>
+
+                <button id="requestCredentialBtn">Request Credential from College</button>
+                <div id="credentialStatus"></div>
+            </div>
+
+            <div id="nextStepSection" class="hidden">
+                <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
+                <div class="info-box" style="background: #d4edda; border-left-color: #28a745;">
+                    <p><strong>✅ Credential Obtained!</strong></p>
+                    <p>You can now proceed to the Scholarship Portal to apply for scholarships.</p>
+                    <p><strong>Privacy Note:</strong> The scholarship portal will NOT see your name or personal details!
+                    </p>
+                </div>
+                <button class="next-step" onclick="window.open('scholarship_portal.html', '_blank')">
+                    🎯 Go to Scholarship Portal →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="crypto.js"></script>
+    <script>
+        const ISSUER_URL = 'http://localhost:5001';
+        const VERIFIER_URL = 'http://localhost:5002';
+        let currentKeys = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedKeys = retrieveKeys();
+            if (storedKeys) {
+                currentKeys = storedKeys;
+                displayKeys();
+            }
+
+            document.getElementById('generateKeysBtn').addEventListener('click', handleGenerateKeys);
+            document.getElementById('requestCredentialBtn').addEventListener('click', handleRequestCredential);
+        });
+
+        function handleGenerateKeys() {
+            const btn = document.getElementById('generateKeysBtn');
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+
+            try {
+                const keys = generateKeyPair();
+                // Store in consistent format
+                storeKeys(keys.privateKey, keys.publicKey);
+                // Reload from storage to ensure consistency
+                currentKeys = retrieveKeys();
+                displayKeys();
+                btn.textContent = 'Regenerate Keys';
+            } catch (error) {
+                showStatus('keysDisplay', 'Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function displayKeys() {
+            const display = document.getElementById('keysDisplay');
+            const publicKeyDisplay = document.getElementById('publicKeyDisplay');
+            const publicKey = currentKeys.public || currentKeys.publicKey;
+            publicKeyDisplay.textContent = publicKey;
+            display.classList.remove('hidden');
+        }
+
+        async function handleRequestCredential() {
+            const studentId = document.getElementById('studentId').value.trim();
+            const studentName = document.getElementById('studentName').value.trim();
+
+            if (!studentId || !studentName) {
+                showStatus('credentialStatus', 'Please enter both Student ID and Name', 'error');
+                return;
+            }
+
+            if (!currentKeys) {
+                showStatus('credentialStatus', 'Please generate keys first (Step 1)', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('requestCredentialBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            try {
+                // Verify identity
+                showStatus('credentialStatus', '🔍 Verifying your identity with college records...', 'info');
+
+                const verifyResponse = await fetch(`${ISSUER_URL}/verify-identity`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId, name: studentName })
+                });
+
+                const verifyData = await verifyResponse.json();
+
+                if (!verifyData.verified) {
+                    showStatus('credentialStatus', '❌ Identity verification failed. Please check your Student ID and Name.', 'error');
+                    return;
+                }
+
+                // Bind public key
+                showStatus('credentialStatus', '🔗 Binding your public key to student record...', 'info');
+
+                const publicKey = currentKeys.public || currentKeys.publicKey;
+                const bindResponse = await fetch(`${ISSUER_URL}/bind-key`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        name: studentName,
+                        public_key: publicKey
+                    })
+                });
+
+                await bindResponse.json();
+
+                // Issue credential
+                showStatus('credentialStatus', '📜 Issuing your credential...', 'info');
+
+                const credResponse = await fetch(`${ISSUER_URL}/issue-credential`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        public_key: publicKey
+                    })
+                });
+
+                const credData = await credResponse.json();
+
+                if (!credData.success) {
+                    showStatus('credentialStatus', 'Credential issuance failed', 'error');
+                    return;
+                }
+
+                // Register with verifier
+                showStatus('credentialStatus', '📝 Registering credential with scholarship system...', 'info');
+
+                const registerResponse = await fetch(`${VERIFIER_URL}/register-credential`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: studentId,
+                        credential: credData.credential,
+                        signature: credData.signature
+                    })
+                });
+
+                const registerData = await registerResponse.json();
+
+                if (registerData.success) {
+                    showStatus('credentialStatus',
+                        '✅ <strong>Success!</strong> Your credential has been issued and registered.<br>' +
+                        '📋 Student: ' + credData.credential.name + '<br>' +
+                        '🎓 Department: ' + credData.credential.department + '<br>' +
+                        '📅 Admission Year: ' + credData.credential.admission_year,
+                        'success');
+
+                    // Show next step
+                    document.getElementById('nextStepSection').classList.remove('hidden');
+                } else {
+                    showStatus('credentialStatus', 'Registration failed', 'error');
+                }
+
+            } catch (error) {
+                showStatus('credentialStatus', 'Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Request Credential from College';
+            }
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+    </script>
+</body>
+
+</html>

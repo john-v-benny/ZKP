@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarship Portal - Anonymous Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .privacy-box {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .privacy-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .privacy-box p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .privacy-box ul {
+            margin: 10px 0 10px 20px;
+            color: #555;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .result-box {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #ffc107;
+            margin-top: 20px;
+        }
+
+        .result-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .grant {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .grant h3 {
+            color: #155724;
+        }
+
+        .deny {
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+
+        .deny h3 {
+            color: #721c24;
+        }
+
+        .step-indicator {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+
+        .warning-box p {
+            color: #856404;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Scholarship Portal</h1>
+            <p class="subtitle">Privacy-Preserving Eligibility Verification</p>
+        </div>
+
+        <div class="card">
+            <h2>Apply for Scholarship Anonymously</h2>
+
+            <div class="privacy-box">
+                <h3>🔒 Your Privacy is Protected</h3>
+                <p><strong>What we can verify:</strong></p>
+                <ul>
+                    <li>✅ You have a valid credential from the college</li>
+                    <li>✅ You know the private key (via Zero-Knowledge Proof)</li>
+                    <li>✅ You meet scholarship eligibility criteria</li>
+                </ul>
+                <p><strong>What we CANNOT see:</strong></p>
+                <ul>
+                    <li>❌ Your name or personal identity</li>
+                    <li>❌ Your student ID</li>
+                    <li>❌ Your private key</li>
+                    <li>❌ Any personal information from the college</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>🛡️ Zero-Knowledge Proof ensures complete privacy!</strong></p>
+            </div>
+
+            <div class="warning-box">
+                <p><strong>⚠️ Important:</strong> You must have obtained a credential from the College Portal first!</p>
+                <p>If you haven't done so, please visit the <a href="college_portal.html" target="_blank">College
+                        Portal</a> first.</p>
+            </div>
+
+            <div class="section">
+                <h3><span class="step-indicator">1</span>Enter Your Student ID</h3>
+                <p style="margin: 15px 0; color: #666;">We only use this to look up your registered public key. Your
+                    identity remains private.</p>
+
+                <div class="form-group">
+                    <label for="studentId">Student ID (for key lookup only):</label>
+                    <input type="text" id="studentId" placeholder="e.g., STU001">
+                </div>
+
+                <button id="applyBtn">🎓 Apply for Scholarship (Anonymous)</button>
+                <div id="applicationStatus"></div>
+            </div>
+
+            <div id="resultSection" class="hidden">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔬 Test Unauthorized Access</h2>
+            <div class="privacy-box" style="background: #ffe6e6; border-left-color: #dc3545;">
+                <h3 style="color: #dc3545;">Security Demonstration</h3>
+                <p>Try applying with a student ID that doesn't have a valid credential or keys:</p>
+                <ul>
+                    <li>Use a non-existent Student ID (e.g., "STU999")</li>
+                    <li>Or use a valid ID but without generating keys first</li>
+                </ul>
+                <p><strong>Expected Result:</strong> The system will reject the application, proving that ZKP prevents
+                    unauthorized access!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="crypto.js"></script>
+    <script>
+        const VERIFIER_URL = 'http://localhost:5002';
+        let currentKeys = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            currentKeys = retrieveKeys();
+            document.getElementById('applyBtn').addEventListener('click', handleApply);
+        });
+
+        async function handleApply() {
+            const studentId = document.getElementById('studentId').value.trim();
+
+            if (!studentId) {
+                showStatus('applicationStatus', 'Please enter your Student ID', 'error');
+                return;
+            }
+
+            if (!currentKeys) {
+                showStatus('applicationStatus',
+                    '❌ No keys found! Please visit the <a href="college_portal.html" target="_blank">College Portal</a> first to generate keys and obtain a credential.',
+                    'error');
+                return;
+            }
+
+            // Extract private key from stored format
+            const privateKey = currentKeys.private || currentKeys.privateKey;
+            if (!privateKey) {
+                showStatus('applicationStatus', '❌ Invalid key format. Please regenerate keys in College Portal.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('applyBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            try {
+                // Request challenge
+                showStatus('applicationStatus', '🔐 Requesting verification challenge...', 'info');
+
+                const challengeResponse = await fetch(`${VERIFIER_URL}/request-challenge`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: studentId })
+                });
+
+                const challengeData = await challengeResponse.json();
+
+                if (!challengeData.challenge) {
+                    showStatus('applicationStatus',
+                        '❌ <strong>Unauthorized Access Prevented!</strong><br>' +
+                        'Error: ' + (challengeData.error || 'Student not registered') + '<br><br>' +
+                        '<strong>Why this happened:</strong><br>' +
+                        '• You don\'t have a valid credential from the college<br>' +
+                        '• Your public key is not in the scholarship registry<br>' +
+                        '• This proves ZKP security works! 🛡️',
+                        'error');
+                    return;
+                }
+
+                // Generate ZKP proof
+                showStatus('applicationStatus', '🧮 Generating Zero-Knowledge Proof (proving you know the private key without revealing it)...', 'info');
+
+                const proof = createProof(privateKey, challengeData.challenge);
+
+                // Submit proof and check eligibility
+                showStatus('applicationStatus', '✅ Verifying proof and checking eligibility...', 'info');
+
+                const eligibilityResponse = await fetch(`${VERIFIER_URL}/check-eligibility`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: challengeData.session_id,
+                        student_id: studentId,
+                        proof: proof
+                    })
+                });
+
+                const eligibilityData = await eligibilityResponse.json();
+
+                // Display result
+                displayResult(eligibilityData);
+
+            } catch (error) {
+                showStatus('applicationStatus', '❌ Error: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🎓 Apply for Scholarship (Anonymous)';
+            }
+        }
+
+        function displayResult(data) {
+            const resultSection = document.getElementById('resultSection');
+            const className = data.eligible ? 'grant' : 'deny';
+            const icon = data.eligible ? '🎉' : '❌';
+
+            let html = `<div class="result-box ${className}">`;
+            html += `<h3>${icon} Decision: ${data.decision}</h3>`;
+            html += `<p><strong>Reasons:</strong></p><ul>`;
+
+            data.reasons.forEach(reason => {
+                html += `<li>${reason}</li>`;
+            });
+
+            html += `</ul>`;
+
+            if (data.eligible) {
+                html += `<p style="margin-top: 15px;"><strong>🔒 Privacy Note:</strong> Your identity was verified without revealing your name or personal details to the scholarship provider!</p>`;
+            }
+
+            html += `</div>`;
+
+            resultSection.innerHTML = html;
+            resultSection.classList.remove('hidden');
+
+            // Clear status
+            document.getElementById('applicationStatus').innerHTML = '';
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+    </script>
+</body>
+
+</html>
