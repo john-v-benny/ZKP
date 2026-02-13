@@ -34,80 +34,77 @@ def create_app():
         """Health check endpoint."""
         return jsonify({'status': 'healthy', 'service': 'verifier'}), 200
     
-    @app.route('/register-credential', methods=['POST'])
-    def register_credential():
+    @app.route('/register-public-key', methods=['POST'])
+    def register_public_key():
         """
-        Register a student's credential in the public key registry.
+        Register ONLY a student's public key (privacy-preserving).
+        NO credential data is stored!
         
         Request body:
             {
-                "student_id": "STU001",
-                "credential": {...},
-                "signature": "abc123..."
+                "student_id": "STU001",  # Only for key lookup
+                "public_key": "12345..."  # Only the public key
             }
         """
         data = request.get_json()
         student_id = data.get('student_id')
-        credential = data.get('credential')
-        signature = data.get('signature')
+        public_key = data.get('public_key')
         
-        if not all([student_id, credential, signature]):
+        if not all([student_id, public_key]):
             return jsonify({'error': 'Missing required fields'}), 400
         
-        # Validate credential signature
-        credential_json = json.dumps(credential)
-        is_valid = cred_manager.validate_credential(credential_json, signature)
-        
-        if not is_valid:
-            return jsonify({'error': 'Invalid credential or signature'}), 401
-        
-        # Extract public key
-        public_key = credential.get('public_key')
-        if not public_key:
-            return jsonify({'error': 'No public key in credential'}), 400
-        
-        # Register in registry
-        success = registry.register_public_key(
+        # Register ONLY the public key (no personal data!)
+        success = registry.register_public_key_only(
             student_id,
-            public_key,
-            credential_json,
-            signature
+            public_key
         )
         
         return jsonify({
             'success': success,
-            'message': 'Credential registered successfully' if success else 'Registration failed'
+            'message': 'Public key registered successfully' if success else 'Registration failed'
         }), 200 if success else 500
+    
+    @app.route('/register-credential', methods=['POST'])
+    def register_credential():
+        """
+        DEPRECATED: This endpoint leaked privacy by storing full credentials.
+        Use /register-public-key instead.
+        """
+        return jsonify({
+            'error': 'This endpoint is deprecated for privacy reasons. Use /register-public-key instead.',
+            'privacy_note': 'We do not store credential data to protect your privacy.'
+        }), 410  # 410 Gone
     
     @app.route('/request-challenge', methods=['POST'])
     def request_challenge():
         """
-        Request a challenge for ZKP verification.
+        Request a challenge for ZKP verification (privacy-preserving).
+        Uses public key instead of student ID!
         
         Request body:
             {
-                "student_id": "STU001"
+                "public_key": "12345..."
             }
         """
         data = request.get_json()
-        student_id = data.get('student_id')
+        public_key = data.get('public_key')
         
-        if not student_id:
-            return jsonify({'error': 'Missing student_id'}), 400
+        if not public_key:
+            return jsonify({'error': 'Missing public_key'}), 400
         
-        # Check if student has registered credential
-        key_data = registry.get_public_key(student_id)
+        # Check if public key is registered (NO student ID needed!)
+        key_data = registry.get_by_public_key(public_key)
         if not key_data:
-            return jsonify({'error': 'Student not registered'}), 404
+            return jsonify({'error': 'Public key not registered'}), 404
         
         # Generate challenge session
         session = zkp_verifier.generate_challenge_session()
         
-        # Store challenge in registry
+        # Store challenge in registry (NO student ID!)
         registry.store_challenge(
             session['session_id'],
             session['challenge'],
-            student_id
+            student_id=None  # Privacy: don't link to student ID
         )
         
         return jsonify({
@@ -165,12 +162,13 @@ def create_app():
     @app.route('/check-eligibility', methods=['POST'])
     def check_eligibility():
         """
-        Check scholarship eligibility (complete workflow).
+        Check scholarship eligibility (maximum privacy).
+        Uses public key instead of student ID!
         
         Request body:
             {
                 "session_id": "uuid",
-                "student_id": "STU001",
+                "public_key": "12345...",
                 "proof": {
                     "commitment": "123...",
                     "response": "456..."
@@ -179,10 +177,10 @@ def create_app():
         """
         data = request.get_json()
         session_id = data.get('session_id')
-        student_id = data.get('student_id')
+        public_key = data.get('public_key')
         proof = data.get('proof')
         
-        if not all([session_id, student_id, proof]):
+        if not all([session_id, public_key, proof]):
             return jsonify({'error': 'Missing required fields'}), 400
         
         # Get challenge
@@ -190,27 +188,29 @@ def create_app():
         if not challenge:
             return jsonify({'error': 'Invalid or expired session'}), 401
         
-        # Get credential
-        key_data = registry.get_public_key(student_id)
+        # Verify public key is registered (NO student ID!)
+        key_data = registry.get_by_public_key(public_key)
         if not key_data:
-            return jsonify({'error': 'Student not registered'}), 404
+            return jsonify({'error': 'Public key not registered'}), 404
         
-        public_key = key_data['public_key']
-        credential = json.loads(key_data['credential_data'])
-        
-        # Verify proof
+        # Verify ZKP proof ONLY
         proof_verified = zkp_verifier.verify_complete_proof(proof, challenge, public_key)
         
         # Mark challenge as used
         if proof_verified:
             registry.mark_challenge_used(session_id)
         
-        # Check eligibility
-        decision = eligibility_engine.check_eligibility(
-            student_id,
-            credential,
-            proof_verified
-        )
+        # Decision based ONLY on proof verification
+        # NO student ID, NO credential data!
+        decision = {
+            'eligible': proof_verified,
+            'decision': 'GRANT' if proof_verified else 'DENY',
+            'reasons': [
+                'ZKP proof verified successfully - Student authenticated' if proof_verified 
+                else 'ZKP proof verification failed'
+            ],
+            'privacy_note': 'No student ID or personal details were disclosed to the scholarship provider!'
+        }
         
         return jsonify(decision), 200
     

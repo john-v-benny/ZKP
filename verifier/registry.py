@@ -60,11 +60,47 @@ class PublicKeyRegistry:
         
         self.conn.commit()
     
+    
+    def register_public_key_only(self, student_id: str, public_key: str, 
+                                 issuer: str = "College") -> bool:
+        """
+        Register ONLY a public key (privacy-preserving).
+        NO credential data is stored!
+        
+        Args:
+            student_id: Student ID (only for key lookup)
+            public_key: Public key
+            issuer: Issuing authority
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            cursor = self.conn.cursor()
+            # Store ONLY public key, no credential data!
+            cursor.execute('''
+                INSERT INTO certified_keys 
+                (student_id, public_key, credential_data, signature, issuer)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (student_id, public_key, '{}', 'N/A', issuer))
+            self.conn.commit()
+            return True
+        except sqlite3.IntegrityError:
+            # Update existing entry
+            cursor.execute('''
+                UPDATE certified_keys 
+                SET public_key = ?, registered_at = CURRENT_TIMESTAMP
+                WHERE student_id = ?
+            ''', (public_key, student_id))
+            self.conn.commit()
+            return True
+    
     def register_public_key(self, student_id: str, public_key: str, 
                            credential_data: str, signature: str, 
                            issuer: str = "College") -> bool:
         """
-        Register a certified public key.
+        DEPRECATED: Register a certified public key with credential data.
+        This method leaks privacy! Use register_public_key_only instead.
         
         Args:
             student_id: Student ID
@@ -98,7 +134,8 @@ class PublicKeyRegistry:
     
     def get_public_key(self, student_id: str) -> Optional[Dict]:
         """
-        Get certified public key for a student.
+        DEPRECATED: Get certified public key by student ID.
+        This method leaks privacy! Use get_by_public_key instead.
         
         Args:
             student_id: Student ID
@@ -111,6 +148,25 @@ class PublicKeyRegistry:
             SELECT * FROM certified_keys 
             WHERE student_id = ? AND verified = 1
         ''', (student_id,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
+    
+    def get_by_public_key(self, public_key: str) -> Optional[Dict]:
+        """
+        Get key data by public key (privacy-preserving).
+        No student ID needed!
+        
+        Args:
+            public_key: Public key to lookup
+            
+        Returns:
+            Dictionary with key data or None
+        """
+        cursor = self.conn.cursor()
+        cursor.execute('''
+            SELECT * FROM certified_keys 
+            WHERE public_key = ? AND verified = 1
+        ''', (public_key,))
         row = cursor.fetchone()
         return dict(row) if row else None
     

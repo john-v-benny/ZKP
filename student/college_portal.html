@@ -370,27 +370,33 @@
                     return;
                 }
 
-                // Register with verifier
-                showStatus('credentialStatus', '📝 Registering credential with scholarship system...', 'info');
+                // Register ONLY public key with verifier (NO personal data!)
+                showStatus('credentialStatus', '📝 Registering public key with scholarship system (privacy-preserving)...', 'info');
 
-                const registerResponse = await fetch(`${VERIFIER_URL}/register-credential`, {
+                const registerResponse = await fetch(`${VERIFIER_URL}/register-public-key`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        student_id: studentId,
-                        credential: credData.credential,
-                        signature: credData.signature
+                        student_id: studentId,  // Only for key lookup
+                        public_key: publicKey,  // Only the public key
+                        // NO credential data sent!
+                        // NO name, GPA, department, or admission year!
                     })
                 });
 
                 const registerData = await registerResponse.json();
 
                 if (registerData.success) {
+                    // Store credential locally (never sent to verifier!)
+                    localStorage.setItem('zkp_credential', JSON.stringify(credData.credential));
+
                     showStatus('credentialStatus',
-                        '✅ <strong>Success!</strong> Your credential has been issued and registered.<br>' +
+                        '✅ <strong>Success!</strong> Your credential has been issued.<br>' +
                         '📋 Student: ' + credData.credential.name + '<br>' +
                         '🎓 Department: ' + credData.credential.department + '<br>' +
-                        '📅 Admission Year: ' + credData.credential.admission_year,
+                        '📅 Admission Year: ' + credData.credential.admission_year + '<br><br>' +
+                        '<strong>🔒 Privacy Note:</strong> Only your public key was registered with the scholarship system. ' +
+                        'Your personal details remain private!',
                         'success');
 
                     // Show next step
